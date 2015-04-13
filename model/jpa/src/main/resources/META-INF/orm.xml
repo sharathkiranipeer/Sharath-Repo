@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    JBoss, Home of Professional Open Source
+    Copyright Red Hat, Inc., and individual contributors.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    	http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<entity-mappings xmlns="http://java.sun.com/xml/ns/persistence/orm"
+                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xsi:schemaLocation="http://java.sun.com/xml/ns/persistence/orm
+http://java.sun.com/xml/ns/persistence/orm_2_0.xsd"
+                 version="2.0">
+    <description>AeroGear Unified Push Server Model API</description>
+    <package>org.jboss.aerogear.unifiedpush.api</package>
+
+    <mapped-superclass class="BaseModel" access="FIELD">
+        <attributes>
+            <id name="id"/>
+        </attributes>
+    </mapped-superclass>
+    <entity class="Variant" access="PROPERTY">
+        <inheritance strategy="JOINED"/>
+        <discriminator-column name="VARIANT_TYPE" discriminator-type="STRING"/>
+    </entity>
+    <entity class="AndroidVariant" access="FIELD">
+        <discriminator-value>android</discriminator-value>
+    </entity>
+    <entity class="Installation" access="FIELD">
+        <attributes>
+            <basic name="deviceToken">
+                <!-- "The max size for a registration_id is bounded by the max size for a cookie, which is 4K (4096 bytes)." -->
+                <column length="4096" />
+            </basic>
+            <many-to-one name="variant" fetch="LAZY">
+                <join-column name="variantID" referenced-column-name="variantID"/>
+            </many-to-one>
+            <many-to-many name="categories" fetch="EAGER">
+                <cascade>
+                    <cascade-persist/>
+                </cascade>
+            </many-to-many>
+        </attributes>
+    </entity>
+    <entity class="Category" access="FIELD">
+        <attributes>
+            <id name="id">
+                <generated-value strategy="SEQUENCE"/>
+            </id>
+        </attributes>
+    </entity>
+    <entity class="iOSVariant" access="FIELD">
+        <discriminator-value>ios</discriminator-value>
+        <attributes>
+            <basic name="certificateData">
+                <column name="cert_data" length="100000"/>
+            </basic>
+        </attributes>
+    </entity>
+    <entity class="PushApplication" access="FIELD">
+        <attributes>
+            <one-to-many name="variants" fetch="EAGER">
+                <order-by>type asc</order-by>
+                <join-column/>
+                <cascade>
+                    <cascade-remove/>
+                </cascade>
+            </one-to-many>
+        </attributes>
+    </entity>
+    <entity class="SimplePushVariant" access="FIELD">
+        <discriminator-value>simplePush</discriminator-value>
+    </entity>
+    <entity class="AdmVariant" access="FIELD">
+        <discriminator-value>admVariant</discriminator-value>
+    </entity>
+    <entity class="org.jboss.aerogear.unifiedpush.api.WindowsWNSVariant" access="FIELD">
+        <discriminator-value>windows_wns</discriminator-value>
+    </entity>
+    <entity class="org.jboss.aerogear.unifiedpush.api.WindowsMPNSVariant" access="FIELD">
+        <discriminator-value>windows_mpns</discriminator-value>
+    </entity>
+
+
+    <entity class="PushMessageInformation" access="FIELD">
+        <attributes>
+            <basic name="submitDate">
+                <temporal>TIMESTAMP</temporal>
+            </basic>
+            <basic name="rawJsonMessage">
+                <column length="4500" />
+            </basic>
+            <one-to-many name="variantInformations" fetch="EAGER">
+                <join-column />
+                <cascade>
+                    <cascade-all/>
+                </cascade>
+            </one-to-many>
+        </attributes>
+    </entity>
+
+    <entity class="VariantMetricInformation" access="FIELD">
+        <attributes>
+            <many-to-one name="pushMessageInformation"/>
+        </attributes>
+    </entity>
+
+</entity-mappings>
